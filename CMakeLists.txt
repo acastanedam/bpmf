@@ -8,7 +8,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # Set a default build type if none was specified
 set(default_build_type "Release")
- 
+
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   message(STATUS "Setting build type to '${default_build_type}' as none was specified.")
   set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE
@@ -22,18 +22,18 @@ OPTION(ENABLE_TSAN "Enable thread sanitizer" OFF)
 OPTION(ENABLE_OPENMP "Enable OpenMP Support" ON)
 OPTION(ENABLE_REDUCE "Reduce Mu/Lambda version" OFF)
 
-SET(BPMF_NUMLATENT 32 CACHE STRING "Number of latent dimensions") 
+SET(BPMF_NUMLATENT 32 CACHE STRING "Number of latent dimensions")
 OPTION(ONLY_VARIANCE "Only compute variance, not covariance" OFF)
 
 SET(BPMF_COMM "NO_COMM" CACHE STRING "Communication library used")
-SET_PROPERTY(CACHE BPMF_COMM PROPERTY STRINGS 
-  GPI_COMM 
-  MPI_ISEND_COMM 
-  MPI_PUT_COMM 
-  MPI_REDUCE_COMM 
-  MPI_ALLREDUCE_COMM 
-  MPI_BCAST_COMM 
-  ARGO_COMM 
+SET_PROPERTY(CACHE BPMF_COMM PROPERTY STRINGS
+  GPI_COMM
+  MPI_ISEND_COMM
+  MPI_PUT_COMM
+  MPI_REDUCE_COMM
+  MPI_ALLREDUCE_COMM
+  MPI_BCAST_COMM
+  ARGO_COMM
   NO_COMM)
 
 set(ARGO_RELEASE "NO_RELEASE" CACHE STRING "Release implementation used")
@@ -150,18 +150,21 @@ if(BPMF_COMM MATCHES ^ARGO)
   target_link_libraries (bpmf optimized ${ARGO_LIBRARY} ${ARGO_BACKEND_MPI_LIBRARY} ${NUMA_LIBRARY} ${RT_LIBRARY})
 endif()
 
+install(TARGETS bpmf
+  DESTINATION "bin/")
+
 enable_testing()
 
-add_test(bpmf_uncompressed ${MPIRUN} ./bpmf -i 4 
+add_test(bpmf_uncompressed ${MPIRUN} ./bpmf -i 4
   -n ${CMAKE_CURRENT_SOURCE_DIR}/data/movielens/ml-train.mtx
   -p ${CMAKE_CURRENT_SOURCE_DIR}/data/movielens/ml-test.mtx
 )
 
-add_test(bpmf_compressed ${MPIRUN} ./bpmf -i 4 
+add_test(bpmf_compressed ${MPIRUN} ./bpmf -i 4
   -n ${CMAKE_CURRENT_SOURCE_DIR}/data/movielens/ml-train.mtx.gz
   -p ${CMAKE_CURRENT_SOURCE_DIR}/data/movielens/ml-test.mtx.gz
 )
 
-#  add_test(NAME bpmf_tiny_rmse 
+#  add_test(NAME bpmf_tiny_rmse
 #    COMMAND ./run_test.sh "${MPIRUN} ${CMAKE_CURRENT_BINARY_DIR}/bpmf" 4.1
 #    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/tiny)
